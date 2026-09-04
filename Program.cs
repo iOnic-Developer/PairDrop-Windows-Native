@@ -465,6 +465,11 @@ internal sealed class SettingsDialog : Form
     private readonly DarkCheckBox notifications;
     private readonly DarkCheckBox receiveSound;
     private readonly DarkCheckBox startup;
+    private readonly ModernButton browse;
+    private readonly ModernButton save;
+    private readonly ModernButton cancel;
+    private readonly RoundedPanel receiveCard;
+    private readonly Label note;
 
     public AppSettings Settings { get; private set; }
 
@@ -480,27 +485,30 @@ internal sealed class SettingsDialog : Form
         Settings = current.Clone();
 
         Text = "PairDrop Native Settings";
-        ClientSize = new Size(1000, 640);
-        MinimumSize = new Size(1016, 679);
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
         BackColor = WindowBack;
         ForeColor = TextColor;
-        Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
 
-        // Important for Windows scaling (125%, 150%, etc.).
-        // This prevents the checkbox text and headings from being clipped.
-        AutoScaleMode = AutoScaleMode.Dpi;
-        AutoScaleDimensions = new SizeF(96F, 96F);
+        // The previous version mixed WinForms DPI autoscaling with controls that
+        // were already drawn manually. On 125/150% Windows scaling that caused
+        // the huge window + tiny fixed-width controls seen in the screenshot.
+        // Keep this custom UI in one consistent pixel coordinate system instead.
+        AutoScaleMode = AutoScaleMode.None;
+        Font = new Font("Segoe UI", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+
+        ClientSize = new Size(980, 620);
+        MinimumSize = new Size(996, 659);
+        MaximumSize = new Size(996, 659);
 
         var header = new Panel
         {
             Left = 0,
             Top = 0,
             Width = ClientSize.Width,
-            Height = 84,
+            Height = 88,
             BackColor = HeaderBack,
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
@@ -509,35 +517,38 @@ internal sealed class SettingsDialog : Form
         {
             Text = "PairDrop Native",
             Left = 32,
-            Top = 16,
-            AutoSize = true,
-            MaximumSize = new Size(700, 40),
-            Font = new Font("Segoe UI Semibold", 19F, FontStyle.Bold, GraphicsUnit.Point),
+            Top = 14,
+            Width = 700,
+            Height = 36,
+            Font = new Font("Segoe UI Semibold", 30F, FontStyle.Bold, GraphicsUnit.Pixel),
             ForeColor = TextColor,
-            BackColor = Color.Transparent
+            BackColor = Color.Transparent,
+            TextAlign = ContentAlignment.MiddleLeft
         };
 
         var subHeading = new Label
         {
             Text = "Native tray client for fast file and clipboard sharing.",
             Left = 34,
-            Top = 53,
-            AutoSize = true,
-            Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point),
+            Top = 52,
+            Width = 760,
+            Height = 24,
+            Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Pixel),
             ForeColor = MutedTextColor,
-            BackColor = Color.Transparent
+            BackColor = Color.Transparent,
+            TextAlign = ContentAlignment.MiddleLeft
         };
 
         header.Controls.Add(heading);
         header.Controls.Add(subHeading);
 
-        var urlLabel = CreateSectionLabel("PairDrop URL", 32, 108);
+        var urlLabel = CreateSectionLabel("PairDrop URL", 32, 110);
 
         urlBox = new ModernTextBox
         {
             Left = 32,
-            Top = 138,
-            Width = 936,
+            Top = 140,
+            Width = 916,
             Height = 48,
             Value = current.PairDropUrl,
             AccentColor = AccentColor
@@ -549,18 +560,18 @@ internal sealed class SettingsDialog : Form
         {
             Left = 32,
             Top = 240,
-            Width = 790,
+            Width = 776,
             Height = 48,
             Value = current.DownloadFolder,
             AccentColor = AccentColor
         };
 
-        var browse = new ModernButton
+        browse = new ModernButton
         {
             Text = "Browse",
-            Left = 838,
+            Left = 820,
             Top = 240,
-            Width = 130,
+            Width = 128,
             Height = 48,
             Primary = false
         };
@@ -577,14 +588,14 @@ internal sealed class SettingsDialog : Form
                 downloadBox.Value = folder.SelectedPath;
         };
 
-        var receivingLabel = CreateSectionLabel("Receiving", 32, 316);
+        var receivingLabel = CreateSectionLabel("Receiving", 32, 314);
 
-        var receiveCard = new RoundedPanel
+        receiveCard = new RoundedPanel
         {
             Left = 32,
-            Top = 348,
-            Width = 936,
-            Height = 172,
+            Top = 346,
+            Width = 916,
+            Height = 158,
             BackColor = CardBack,
             BorderColor = BorderColor,
             CornerRadius = 12
@@ -594,9 +605,9 @@ internal sealed class SettingsDialog : Form
         {
             Text = "Automatically accept incoming files",
             Left = 24,
-            Top = 24,
-            Width = 405,
-            Height = 36,
+            Top = 22,
+            Width = 410,
+            Height = 42,
             Checked = current.AutoAccept,
             AccentColor = AccentColor
         };
@@ -604,10 +615,10 @@ internal sealed class SettingsDialog : Form
         notifications = new DarkCheckBox
         {
             Text = "Show Windows notifications",
-            Left = 490,
-            Top = 24,
-            Width = 380,
-            Height = 36,
+            Left = 468,
+            Top = 22,
+            Width = 410,
+            Height = 42,
             Checked = current.Notifications,
             AccentColor = AccentColor
         };
@@ -617,8 +628,8 @@ internal sealed class SettingsDialog : Form
             Text = "Automatically copy received text to clipboard",
             Left = 24,
             Top = 82,
-            Width = 430,
-            Height = 36,
+            Width = 420,
+            Height = 42,
             Checked = current.CopyReceivedTextToClipboard,
             AccentColor = AccentColor
         };
@@ -626,10 +637,10 @@ internal sealed class SettingsDialog : Form
         receiveSound = new DarkCheckBox
         {
             Text = "Play a sound when text / files arrive",
-            Left = 490,
+            Left = 468,
             Top = 82,
-            Width = 390,
-            Height = 36,
+            Width = 420,
+            Height = 42,
             Checked = current.PlaySoundOnReceive,
             AccentColor = AccentColor
         };
@@ -646,42 +657,44 @@ internal sealed class SettingsDialog : Form
         {
             Text = "Start PairDrop Native with Windows",
             Left = 32,
-            Top = 544,
-            Width = 410,
-            Height = 36,
+            Top = 526,
+            Width = 430,
+            Height = 42,
             Checked = current.StartWithWindows,
             AccentColor = AccentColor,
             BackColor = WindowBack
         };
 
-        var note = new Label
+        note = new Label
         {
             Text = "Runs silently in the tray with no embedded browser.",
             Left = 34,
-            Top = 586,
-            AutoSize = true,
+            Top = 570,
+            Width = 570,
+            Height = 24,
             ForeColor = MutedTextColor,
             BackColor = Color.Transparent,
-            Font = new Font("Segoe UI", 9.25F, FontStyle.Regular, GraphicsUnit.Point)
+            Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Pixel),
+            TextAlign = ContentAlignment.MiddleLeft
         };
 
-        var save = new ModernButton
+        save = new ModernButton
         {
             Text = "Save",
-            Left = 742,
-            Top = 562,
+            Left = 716,
+            Top = 548,
             Width = 108,
             Height = 48,
             Primary = true,
             DialogResult = DialogResult.OK
         };
 
-        var cancel = new ModernButton
+        cancel = new ModernButton
         {
             Text = "Cancel",
-            Left = 862,
-            Top = 562,
-            Width = 106,
+            Left = 840,
+            Top = 548,
+            Width = 108,
             Height = 48,
             Primary = false,
             DialogResult = DialogResult.Cancel
@@ -752,15 +765,14 @@ internal sealed class SettingsDialog : Form
 
         try
         {
-            // Dark Windows title bar (Windows 10/11).
             int enabled = 1;
+
             int result = DwmSetWindowAttribute(
                 Handle,
                 20, // DWMWA_USE_IMMERSIVE_DARK_MODE
                 ref enabled,
                 sizeof(int));
 
-            // Older Windows 10 builds used attribute 19.
             if (result != 0)
             {
                 DwmSetWindowAttribute(
@@ -770,17 +782,16 @@ internal sealed class SettingsDialog : Form
                     sizeof(int));
             }
 
-            // Rounded native window corners on Windows 11.
-            int cornerPreference = 2; // DWMWCP_ROUND
+            int cornerPreference = 2; // rounded
             DwmSetWindowAttribute(
                 Handle,
-                33, // DWMWA_WINDOW_CORNER_PREFERENCE
+                33,
                 ref cornerPreference,
                 sizeof(int));
         }
         catch
         {
-            // Older Windows versions simply keep the normal title bar.
+            // Normal title bar on unsupported Windows versions.
         }
     }
 
@@ -791,10 +802,12 @@ internal sealed class SettingsDialog : Form
             Text = text,
             Left = left,
             Top = top,
-            AutoSize = true,
+            Width = 820,
+            Height = 26,
             ForeColor = TextColor,
             BackColor = Color.Transparent,
-            Font = new Font("Segoe UI Semibold", 10.75F, FontStyle.Bold, GraphicsUnit.Point)
+            Font = new Font("Segoe UI Semibold", 18F, FontStyle.Bold, GraphicsUnit.Pixel),
+            TextAlign = ContentAlignment.MiddleLeft
         };
     }
 }
@@ -844,16 +857,17 @@ internal sealed class ModernTextBox : UserControl
 
     public ModernTextBox()
     {
+        AutoScaleMode = AutoScaleMode.None;
         DoubleBuffered = true;
         BackColor = Color.FromArgb(12, 18, 27);
-        Padding = new Padding(14, 12, 14, 8);
+        Padding = new Padding(12, 12, 12, 8);
 
         inner = new TextBox
         {
             BorderStyle = BorderStyle.None,
             BackColor = BackColor,
             ForeColor = Color.FromArgb(242, 246, 252),
-            Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point),
+            Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Pixel),
             Dock = DockStyle.Fill
         };
 
@@ -875,16 +889,10 @@ internal sealed class ModernTextBox : UserControl
         Cursor = Cursors.IBeam;
     }
 
-    protected override void OnFontChanged(EventArgs e)
-    {
-        base.OnFontChanged(e);
-        if (inner is not null)
-            inner.Font = Font;
-    }
-
     protected override void OnBackColorChanged(EventArgs e)
     {
         base.OnBackColorChanged(e);
+
         if (inner is not null)
             inner.BackColor = BackColor;
     }
@@ -905,7 +913,7 @@ internal sealed class ModernTextBox : UserControl
             Math.Max(1, Width - 1),
             Math.Max(1, Height - 1));
 
-        using var path = UiDrawing.RoundRect(rect, 10);
+        using var path = UiDrawing.RoundRect(rect, 9);
         using var fill = new SolidBrush(BackColor);
         using var border = new Pen(
             focused ? AccentColor : Color.FromArgb(54, 68, 91),
@@ -925,12 +933,13 @@ internal sealed class ModernButton : Button
 
     public ModernButton()
     {
+        AutoSize = false;
         FlatStyle = FlatStyle.Flat;
         FlatAppearance.BorderSize = 0;
         UseVisualStyleBackColor = false;
         Cursor = Cursors.Hand;
         ForeColor = Color.White;
-        Font = new Font("Segoe UI Semibold", 10.5F, FontStyle.Bold, GraphicsUnit.Point);
+        Font = new Font("Segoe UI Semibold", 17F, FontStyle.Bold, GraphicsUnit.Pixel);
         DoubleBuffered = true;
 
         MouseEnter += (_, _) =>
@@ -989,7 +998,7 @@ internal sealed class ModernButton : Button
             Math.Max(1, Width - 1),
             Math.Max(1, Height - 1));
 
-        using var path = UiDrawing.RoundRect(rect, 10);
+        using var path = UiDrawing.RoundRect(rect, 9);
         using var fill = new SolidBrush(background);
 
         pevent.Graphics.FillPath(fill, path);
@@ -1018,12 +1027,12 @@ internal sealed class DarkCheckBox : CheckBox
 
     public DarkCheckBox()
     {
+        AutoSize = false;
         DoubleBuffered = true;
         Cursor = Cursors.Hand;
         ForeColor = Color.FromArgb(242, 246, 252);
         BackColor = Color.FromArgb(19, 27, 39);
-        Font = new Font("Segoe UI", 10.25F, FontStyle.Regular, GraphicsUnit.Point);
-        AutoSize = false;
+        Font = new Font("Segoe UI", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
         Padding = new Padding(0);
         TextAlign = ContentAlignment.MiddleLeft;
     }
@@ -1055,6 +1064,7 @@ internal sealed class DarkCheckBox : CheckBox
             };
 
             var y = boxRect.Top;
+
             pevent.Graphics.DrawLines(
                 tick,
                 new[]
@@ -1079,6 +1089,8 @@ internal sealed class DarkCheckBox : CheckBox
             Math.Max(0, Width - 34),
             Height);
 
+        // No EndEllipsis here. These controls are deliberately wide enough for
+        // their full labels, so the user's settings never show "..." again.
         TextRenderer.DrawText(
             pevent.Graphics,
             Text,
@@ -1088,7 +1100,7 @@ internal sealed class DarkCheckBox : CheckBox
             TextFormatFlags.Left
             | TextFormatFlags.VerticalCenter
             | TextFormatFlags.SingleLine
-            | TextFormatFlags.EndEllipsis);
+            | TextFormatFlags.NoPadding);
     }
 }
 

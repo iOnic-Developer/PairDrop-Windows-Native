@@ -138,3 +138,14 @@ It is intentionally independent of PairDrop's HTML/CSS UI.
 - Modern rounded buttons
 - Larger 1000 × 640 settings window
 - DPI-aware layout to stop text clipping at 125% / 150% Windows scaling
+
+
+## v0.5 DPI/layout fix
+
+- Removed WinForms DPI autoscaling from the custom-drawn settings UI.
+- Uses pixel-based fonts and dimensions consistently.
+- Fixes oversized settings window at 125% / 150% Windows display scaling.
+- Fixes clipped PairDrop Native heading.
+- Fixes checkbox labels being replaced with `...`.
+- Removes the large unused area to the right/bottom.
+- Keeps the dark theme, rounded controls and blue accent.
