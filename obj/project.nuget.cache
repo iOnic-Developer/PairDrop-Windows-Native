@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "EmxkDEJ2p8M=",
+  "success": true,
+  "projectFilePath": "C:\\pairdrop\\PairDropNative.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\dbzoc\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.17\\microsoft.net.illink.tasks.8.0.17.nupkg.sha512"
+  ],
+  "logs": []
+}

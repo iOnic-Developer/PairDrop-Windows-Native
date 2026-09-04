@@ -1,0 +1,2 @@
+C:\pairdrop\publish\PairDropNative.pdb
+C:\pairdrop\publish\PairDropNative.exe

@@ -1,0 +1,14 @@
+C:\pairdrop\bin\Release\net8.0-windows\win-x64\PairDropNative.exe
+C:\pairdrop\bin\Release\net8.0-windows\win-x64\PairDropNative.deps.json
+C:\pairdrop\bin\Release\net8.0-windows\win-x64\PairDropNative.runtimeconfig.json
+C:\pairdrop\bin\Release\net8.0-windows\win-x64\PairDropNative.dll
+C:\pairdrop\bin\Release\net8.0-windows\win-x64\PairDropNative.pdb
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.GeneratedMSBuildEditorConfig.editorconfig
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.AssemblyInfoInputs.cache
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.AssemblyInfo.cs
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.csproj.CoreCompileInputs.cache
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.dll
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\refint\PairDropNative.dll
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.pdb
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\PairDropNative.genruntimeconfig.cache
+C:\pairdrop\obj\Release\net8.0-windows\win-x64\ref\PairDropNative.dll
