@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>PairDropNative</AssemblyName>
     <RootNamespace>PairDropNative</RootNamespace>
+    <StartupObject>PairDropNative.ShellBootstrap</StartupObject>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
