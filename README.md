@@ -1,151 +1,82 @@
-# PairDrop Native for Windows — v0.2
+💧 PairDrop: Native
+A native Windows system tray client and optimized Docker deployment for PairDrop, allowing seamless local file and clipboard sharing across your devices.
+💡 Overview: This repository contains everything you need to run PairDrop with a background Windows client and a proper WebSocket-enabled Unraid backend.
+✨ Features
+Context Menu Integration: Right-click any file or right-click selected text to send it directly to other devices.
+Instant Clipboard: Received text is automatically copied straight to your clipboard.
+Always Ready: File transfers are permanently set to auto-accept for frictionless sharing.
+Audio Notifications: Plays a ping sound when you receive files or clipboard data.
+System Tray App: Runs quietly in the background without cluttering your taskbar.
+🚀 Installation
+1. Server Side (Unraid / Docker)
+We use a custom NGINX gateway to route PairDrop traffic correctly and handle WebSockets.
+Step 1: Create the NGINX configuration
+mkdir -p /mnt/user/appdata/pairdrop-gateway
 
-A tray-only Windows client that speaks PairDrop's WebSocket fallback protocol directly.
+cat > /mnt/user/appdata/pairdrop-gateway/default.conf <<'EOF'
+server {
+    listen 80;
 
-There is **no embedded browser and no WebView2**.
+    location / {
+        proxy_pass http://pairdrop:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Real-IP "";
+        proxy_set_header CF-Connecting-IP "";
+        proxy_read_timeout 3600;
+        proxy_send_timeout 3600;
+    }
+}
+EOF
+Step 2: Deploy the docker-compose.yml
+services:
+  pairdrop:
+    image: lscr.io/linuxserver/pairdrop:latest
+    container_name: pairdrop
+    restart: unless-stopped
+    environment:
+      - PUID=99
+      - PGID=100
+      - TZ=Europe/London
+      - WS_FALLBACK=true
+      - RATE_LIMIT=false
+      - DEBUG_MODE=true
+    networks:
+      - pairdrop-net
 
-## What it does
+  pairdrop-gateway:
+    image: nginx:alpine
+    container_name: pairdrop-gateway
+    restart: unless-stopped
+    depends_on:
+      - pairdrop
+    volumes:
+      - /mnt/user/appdata/pairdrop-gateway/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - 3077:80
+    networks:
+      - pairdrop-net
 
-- Runs only in the Windows system tray
-- Connects to your existing self-hosted PairDrop server
-- Appears as a normal PairDrop device
-- Automatically accepts incoming files
-- Streams incoming files directly to disk
-- Automatically copies received text to the Windows clipboard
-- Native Windows notifications
-- Send clipboard text to any currently visible PairDrop device
-- Send files to any currently visible PairDrop device
-- Starts with Windows
-- Remembers the PairDrop peer identity between launches
-
-## Server requirement
-
-Your PairDrop server must have:
-
-```text
-WS_FALLBACK=true
-```
-
-This native client advertises:
-
-```text
-webrtc_supported=false
-```
-
-so PairDrop browsers use the existing WSPeer fallback protocol to communicate with it.
-
-Because it uses WebSocket fallback, file data passes through your PairDrop server rather than a direct WebRTC P2P data channel.
-
-## Build
-
-Put the files in:
-
-```text
-C:\pairdrop-native
-```
-
-Then:
-
-```powershell
-cd C:\pairdrop-native
+networks:
+  pairdrop-net:
+    driver: bridge
+2. Windows Client Side
+You can either download the pre-compiled release build, or build it yourself.
+Option A: Download Release (Recommended)
+Download the latest release from the Releases tab.
+Extract and run PairDropTray.exe.
+Option B: Build from Source
+Extract the source code to C:\PairDropTray
+Open PowerShell as Administrator and run:
+cd C:\PairDropTray
 powershell -ExecutionPolicy Bypass -File .\build.ps1
-```
-
-If the .NET 8 SDK is missing:
-
-```powershell
-winget install Microsoft.DotNet.SDK.8
-```
-
-Finished executable:
-
-```text
-C:\pairdrop-native\publish\PairDropNative.exe
-```
-
-## First launch
-
-The settings window asks for:
-
-- PairDrop URL, for example `https://drop.example.com`
-- Download folder
-- Auto accept
-- Auto-copy received text
-- Windows notifications
-- Start with Windows
-
-The app then disappears into the tray.
-
-## Tray menu
-
-- Connection status
-- Visible devices
-- Send clipboard to → device
-- Send files to → device
-- Open downloads
-- Open PairDrop website
-- Settings
-- Reconnect
-- Quit
-
-## Notes
-
-This implementation follows PairDrop's current open-source WebSocket fallback protocol:
-- `/server?webrtc_supported=false`
-- `join-ip-room`
-- `signal`
-- `request`
-- `files-transfer-response`
-- `header`
-- `ws-chunk`
-- `partition`
-- `partition-received`
-- `file-transfer-complete`
-- `text`
-- `message-transfer-complete`
-
-It is intentionally independent of PairDrop's HTML/CSS UI.
-
-
-## v0.2 fixes
-
-- Transfer completion now mirrors PairDrop's receiver behaviour more closely.
-- Incoming transfers send PairDrop `progress` updates, including final 100%, so the sending phone/browser leaves its transfer state.
-- `partition-received` now echoes the partition offset.
-- Zero-byte files complete correctly.
-- Text sends now wait for PairDrop's `message-transfer-complete` acknowledgement.
-- Settings window enlarged to 940 × 500 client area.
-- New **Play a sound when text / files arrive** setting (enabled by default).
-- Clipboard notifications now say **Clipboard received**.
-- Image notifications identify incoming images separately from generic files.
-
-
-## v0.3 UI refresh
-
-- Settings window updated to a dark theme
-- More modern, cleaner spacing and typography
-- Larger settings window
-- Wider URL and download fields
-- Better styled Save / Cancel / Browse buttons
-
-
-## v0.4 settings popup
-
-- Actual WinForms settings code redesigned (not an image/mock-up)
-- Dark Windows title bar on supported Windows 10/11 builds
-- Rounded dark input fields and receiving card
-- Custom dark checkboxes with blue accent
-- Modern rounded buttons
-- Larger 1000 × 640 settings window
-- DPI-aware layout to stop text clipping at 125% / 150% Windows scaling
-
-
-## v0.5 DPI/layout fix
-
-- Removed WinForms DPI autoscaling from the custom-drawn settings UI.
-- Uses pixel-based fonts and dimensions consistently.
-- Fixes oversized settings window at 125% / 150% Windows display scaling.
-- Fixes clipped PairDrop Native heading.
-- Fixes checkbox labels being replaced with `...`.
-- Removes the large unused area to the right/bottom.
-- Keeps the dark theme, rounded controls and blue accent.
+.\publish\PairDropTray.exe
+🌍 Global Access (Cloudflare Tunnels)
+Want to access your PairDrop instance securely from anywhere while keeping the native Windows app working locally?
+Expose with Cloudflare: Point a URL to your Unraid server using a Cloudflare tunnel (e.g., share.yourdomain.app).
+Secure it (Zero Trust): Add a Cloudflare Access policy. The easiest method is to require Google Sign-In, restricted to your specific email address, with a 1-month session duration. You only have to log in once a month.
+Mobile Access: On your phone, visit the public URL and sign in via Google.
+Windows App Config: Set the Windows app to use your local IP (e.g., http://192.168.0.111:3077). This allows your desktop to bypass the Cloudflare authentication block while remaining securely connected inside your local network.
