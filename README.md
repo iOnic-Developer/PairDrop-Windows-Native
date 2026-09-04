@@ -16,7 +16,10 @@ A lightweight native Windows system-tray client for [PairDrop](https://github.co
 - **Instant clipboard receiving** — received text can be copied straight to the Windows clipboard.
 - **Native notifications** — separate Windows notifications for clipboard text, images and other files.
 - **Receive sound** — optional audio notification whenever text or files arrive.
-- **Send from the tray icon** — open the PairDrop Native tray menu to send clipboard text or files to any currently visible PairDrop device.
+- **Send from the tray icon** — send clipboard text or choose files for any currently visible PairDrop device.
+- **Explorer send menu** — right-click one or more files and choose `Send with PairDrop Native → device`.
+- **Global clipboard hotkey** — press `Ctrl+Shift+P` anywhere in Windows to choose a PairDrop device and send the current text clipboard.
+- **Command-line handoff** — `--send-files` and `--send-clipboard` commands hand work to the already-running tray process over a local named pipe.
 - **Persistent identity** — remembers its PairDrop peer identity between launches.
 - **Start with Windows** — stays available in the background after login.
 - **No browser runtime** — the client is independent of PairDrop's HTML/CSS interface.
@@ -202,12 +205,86 @@ Connection status
 Devices
 Send clipboard to → device
 Send files to → device
+Clipboard hotkey: Ctrl+Shift+P
 Open downloads
 Open PairDrop website
 Settings
 Reconnect
 Quit
 ```
+
+---
+
+## 🖱️ Explorer context menu
+
+While PairDrop Native is running and devices are visible, it maintains a per-user Explorer context menu under `HKCU`, so no administrator rights are required.
+
+Select one or more files, then use:
+
+```text
+Right-click file(s)
+└─ Send with PairDrop Native
+   ├─ Phone
+   ├─ Laptop
+   └─ Tablet
+```
+
+On Windows 11, legacy application verbs may appear under **Show more options** depending on your Explorer configuration.
+
+The device submenu is rebuilt automatically as PairDrop peers appear and disappear.
+
+### Multiple selected files
+
+Windows Explorer can invoke a legacy shell verb once for each selected file. PairDrop Native uses `MultiSelectModel=Player`, a single-instance mutex and a local named pipe to collect those invocations, then debounces them into **one PairDrop transfer containing the complete selection**.
+
+---
+
+## ⌨️ Global clipboard hotkey
+
+Copy text in any application, then press:
+
+```text
+Ctrl + Shift + P
+```
+
+A small device picker appears at the mouse cursor:
+
+```text
+Send clipboard to
+├─ Phone
+├─ Laptop
+└─ Tablet
+```
+
+Choose a device and PairDrop Native sends the current text clipboard immediately.
+
+If another Windows application has already registered `Ctrl+Shift+P` as a global hotkey, PairDrop Native shows a notification and continues running normally.
+
+---
+
+## 💻 Command-line interface
+
+The executable can also be called directly. If PairDrop Native is already running, the command is handed to the existing tray process instead of creating a second PairDrop connection.
+
+### Send files
+
+```powershell
+PairDropNative.exe --send-files "peer-id" "file1.jpg" "file2.pdf"
+```
+
+Single-file alias:
+
+```powershell
+PairDropNative.exe --send-file "peer-id" "file1.jpg"
+```
+
+### Send the current clipboard
+
+```powershell
+PairDropNative.exe --send-clipboard "peer-id"
+```
+
+The Explorer integration uses the same `--send-files` path internally.
 
 ---
 
@@ -281,12 +358,31 @@ message-transfer-complete
 
 Incoming file data is streamed directly to disk instead of being held inside an embedded browser. Received clipboard text can be copied directly into the Windows clipboard.
 
+The Windows shell layer adds:
+
+```text
+Single-instance mutex
+Named-pipe command handoff
+Dynamic Explorer device submenu
+Multi-file batching
+Global Ctrl+Shift+P hotkey
+```
+
 ---
 
 ## 📝 Version history
 
 <details>
 <summary><strong>Development history</strong></summary>
+
+### v0.7 — Windows shell integration
+
+- Added dynamic Explorer `Send with PairDrop Native → device` submenu.
+- Added multi-file Explorer selection batching.
+- Added `Ctrl+Shift+P` global clipboard device picker.
+- Added single-instance mutex and named-pipe IPC.
+- Added `--send-files`, `--send-file` and `--send-clipboard` CLI commands.
+- Added Windows CI build validation and build artifacts.
 
 ### v0.6 — UI polish
 
