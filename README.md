@@ -16,7 +16,7 @@ A lightweight native Windows system-tray client for [PairDrop](https://github.co
 - **Instant clipboard receiving** — received text can be copied straight to the Windows clipboard.
 - **Native notifications** — separate Windows notifications for clipboard text, images and other files.
 - **Receive sound** — optional audio notification whenever text or files arrive.
-- **Direct sending from the tray** — send clipboard text or select files for any currently visible PairDrop device.
+- **Send from the tray icon** — open the PairDrop Native tray menu to send clipboard text or files to any currently visible PairDrop device.
 - **Persistent identity** — remembers its PairDrop peer identity between launches.
 - **Start with Windows** — stays available in the background after login.
 - **No browser runtime** — the client is independent of PairDrop's HTML/CSS interface.
@@ -195,7 +195,7 @@ The settings window lets you configure:
 
 ### Tray menu
 
-Right-click the PairDrop Native tray icon to access:
+Open the PairDrop Native tray icon menu to access:
 
 ```text
 Connection status
